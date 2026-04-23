@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>รายงานผลการปฏิบัติงานกีฬา • จังหวัดหนองบัวลำภู</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f5;--surface:#fff;--border:#e2e8f0;
+  --text:#0f172a;--text2:#64748b;--text3:#94a3b8;
+  --blue:#2563eb;--blue2:#1d4ed8;--blue-lt:#dbeafe;
+  --green:#059669;--green-lt:#d1fae5;
+  --red:#dc2626;--red-lt:#fee2e2;
+  --indigo:#4f46e5;--indigo-lt:#e0e7ff;
+  --amber:#d97706;--amber-lt:#fef3c7;
+  --purple:#7c3aed;--purple-lt:#ede9fe;
+  --r:14px;--r2:8px;
+  --hdr-top-h:190px;
+  --gold-start:#ffcb00;--gold-end:#ffef1b;
+  --navy:#0f172a;--navy2:#1e293b;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);font-size:15px;min-height:100vh;overflow-x:hidden}
+
+/* ══════ LOADING OVERLAY ══════ */
+#lov{display:none;position:fixed;inset:0;background:rgba(241,245,249,.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:12px;backdrop-filter:blur(4px)}
+.spc{width:38px;height:38px;border:3px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ══════ TOAST ══════ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 8px 32px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:999;max-width:92vw}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#065f46}
+.toast.er{background:#991b1b}
+
+/* ══════ HEADER ROW 1 — Gold Banner ══════ */
+.hdr-top{
+  background:linear-gradient(135deg,var(--gold-start) 0%,#ffeda6 30%,#ffeda6 65%,var(--gold-end) 100%);
+  border-bottom:4px solid #e8b518;
+  padding:18px 28px;
+  display:flex;align-items:center;gap:22px;
+  position:sticky;top:0;z-index:101;
+  box-shadow:0 4px 28px rgba(0,0,0,.12);
+}
+.hdr-left{flex-shrink:0;display:flex;align-items:center}
+.hdr-logo{width:140px;height:140px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(180,140,0,.4))}
+.hdr-logo-ph{width:140px;height:140px;background:rgba(255,200,0,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;flex-shrink:0}
+.hdr-center{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.hdr-title{text-align:center;width:100%}
+.hdr-title h1{font-size:21px;font-weight:800;color:#4a0404;line-height:1.45;letter-spacing:.03em;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.hdr-title .sub{font-size:12.5px;color:#1e3a5f;margin-top:4px;letter-spacing:.02em;font-weight:600}
+.hdr-photos{display:flex;gap:10px;justify-content:center;align-items:center}
+.hdr-photo{width:100px;height:118px;object-fit:cover;border-radius:10px;border:2.5px solid rgba(255,220,80,.5);box-shadow:0 5px 20px rgba(0,0,0,.15);transition:transform .25s;background:#e2e8f0}
+.hdr-photo:hover{transform:scale(1.06) rotate(-1deg)}
+
+/* ══════ HEADER ROW 2 — Dark Nav ══════ */
+.hdr-bot{
+  background:linear-gradient(90deg,#0a0520 0%,#151035 100%);
+  border-bottom:3px solid var(--blue);
+  padding:0 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:var(--hdr-top-h);z-index:100;gap:0;
+}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;flex:1}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;color:#64748b;padding:12px 18px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-3px;transition:all .18s;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:#94a3b8}
+.tab.on{color:#60a5fa;border-bottom-color:#60a5fa;font-weight:700}
+
+/* ── Fiscal Picker ── */
+.fp{display:flex;align-items:center;border:1.5px solid #3b82f6;border-radius:10px;overflow:hidden;background:#fff;flex-shrink:0;margin:6px 0}
+.fp-lbl{background:var(--blue);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;padding:0 10px;height:34px;display:flex;align-items:center;gap:4px;white-space:nowrap;font-family:'Sarabun',sans-serif}
+.fp-lbl svg{width:12px;height:12px;fill:#fff;flex-shrink:0}
+.fp-div{width:1px;background:#bfdbfe;height:34px;flex-shrink:0}
+.fp select{font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:#1e3a8a;background:transparent;border:none;outline:none;cursor:pointer;padding:0 8px;height:34px}
+
+.ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:6px 16px}
+
+/* View mode toggle */
+.vmode-wrap{display:flex;border:1.5px solid #334155;border-radius:10px;overflow:hidden;flex-shrink:0}
+.vmode-btn{font-family:'Sarabun',sans-serif;font-size:11px;font-weight:700;padding:0 12px;height:34px;border:none;cursor:pointer;transition:all .15s}
+.vmode-btn.on{background:var(--blue);color:#fff}
+.vmode-btn:not(.on){background:var(--navy2);color:#64748b}
+
+/* District filter */
+.dist-fp{border-color:var(--purple)}
+.dist-fp .fp-lbl{background:var(--purple)}
+.dist-fp select{color:#5b21b6}
+
+/* Export */
+.export-btn{font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;color:#0891b2;background:#ecfeff;border:1px solid #67e8f9;border-radius:var(--r2);padding:6px 13px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.export-btn:hover{background:#cffafe}
+
+/* ══════ PAGES ══════ */
+.pg{display:none}.pg.on{display:block}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+.wrap-sm{max-width:880px;margin:0 auto;padding:16px 16px 60px}
+
+/* ══════ KPI CARDS ══════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;border-bottom:4px solid transparent;transition:box-shadow .25s,transform .18s;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:0 var(--r) 0 60px;opacity:.06}
+.kpi:hover{box-shadow:0 8px 28px rgba(0,0,0,.08);transform:translateY(-2px)}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.kpi-ico{font-size:22px}
+.kpi-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.04em}
+.kpi-lbl{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.kpi-val{font-size:26px;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi-sfx{font-size:10px;color:var(--text3);margin-top:4px}
+.kpi-blue{border-bottom-color:var(--blue)}.kpi-blue::before{background:var(--blue)}.kpi-blue .kpi-val{color:var(--blue2)}
+.kpi-blue .kpi-badge{background:var(--blue-lt);color:#1e40af}
+.kpi-green{border-bottom-color:var(--green)}.kpi-green::before{background:var(--green)}.kpi-green .kpi-val{color:#047857}
+.kpi-green .kpi-badge{background:var(--green-lt);color:#065f46}
+.kpi-indigo{border-bottom-color:var(--indigo)}.kpi-indigo::before{background:var(--indigo)}.kpi-indigo .kpi-val{color:#4338ca}
+.kpi-indigo .kpi-badge{background:var(--indigo-lt);color:#3730a3}
+.kpi-amber{border-bottom-color:var(--amber)}.kpi-amber::before{background:var(--amber)}.kpi-amber .kpi-val{color:#b45309}
+.kpi-amber .kpi-badge{background:var(--amber-lt);color:#92400e}
+
+/* ══════ CARDS ══════ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card-accent{border-left:4px solid var(--blue);padding-left:16px}
+.sec{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:14px;letter-spacing:.05em;text-transform:uppercase}
+
+/* ══════ INNER TABS ══════ */
+.inner-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0}
+.inner-tab{font-family:'Sarabun',sans-serif;font-size:12px;font-weight:500;color:var(--text2);padding:8px 16px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.inner-tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+
+/* ══════ CHARTS ROW ══════ */
+.charts-row{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:14px}
+
+/* ══════ HORIZONTAL BARS ══════ */
+.brow{display:grid;grid-template-columns:30px 1fr auto;grid-template-rows:auto auto;gap:3px 10px;padding:10px 8px;border-radius:var(--r2);transition:background .12s}
+.brow:nth-child(odd){background:#f8fafc}
+.brow:hover{background:#eff6ff}
+.bnum{grid-column:1;grid-row:1/3;align-self:center;font-size:10px;font-weight:700;color:#94a3b8;text-align:center;background:#f1f5f9;border-radius:5px;display:flex;align-items:center;justify-content:center;height:28px;width:28px;flex-shrink:0}
+.bname{grid-column:2;grid-row:1;font-size:12px;color:#1e293b;line-height:1.4;font-weight:500;word-break:break-word}
+.btrack{grid-column:2;grid-row:2;height:7px;background:#e2e8f0;border-radius:99px;overflow:hidden;align-self:center}
+.bfill{height:100%;border-radius:99px;background:linear-gradient(90deg,#3b82f6,#6366f1);transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bval{grid-column:3;grid-row:1/3;font-size:13px;font-weight:700;color:#1e40af;align-self:center;text-align:right;white-space:nowrap;min-width:44px}
+
+/* ══════ DONUT ══════ */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.dl-item{display:flex;align-items:center;gap:7px;font-size:11px;padding:4px 0;border-bottom:1px solid #f1f5f9;width:100%}
+.dl-item:last-child{border-bottom:none}
+.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.dl-name{flex:1;color:var(--text2)}
+.dl-pct{font-weight:600;color:var(--text)}
+
+/* ══════ TABLE ══════ */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:10px;text-align:left;font-size:10px;font-weight:600;color:var(--text2);background:#f8fafc;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover{color:var(--text)}
+thead th.sa::after{content:' ▲';font-size:8px}
+thead th.sd::after{content:' ▼';font-size:8px}
+tbody tr{border-bottom:1px solid #f8fafc;transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+tbody td{padding:10px;color:var(--text);vertical-align:top}
+tfoot td{padding:10px;background:#f1f5f9;font-weight:700;font-size:12px;border-top:1px solid var(--border)}
+.nr{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px}
+.bdg-on{background:var(--green-lt);color:#065f46}
+.bdg-off{background:#f1f5f9;color:var(--text3)}
+.bdg-d{width:5px;height:5px;border-radius:50%}
+.bdg-on .bdg-d{background:var(--green)}
+.bdg-off .bdg-d{background:var(--text3)}
+
+/* ══════ FEEDBACK SECTION ══════ */
+.fb-card{background:linear-gradient(135deg,#fefce8,#fff7ed);border:1px solid #fde68a;border-radius:var(--r);padding:18px;margin-bottom:14px}
+.fb-item{background:#fff;border:1px solid #fde68a;border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.fb-item:last-child{margin-bottom:0}
+.fb-org{font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.fb-month{font-size:10px;color:#b45309;font-weight:500}
+.fb-label{font-size:10px;font-weight:700;color:var(--text3);margin:8px 0 3px;letter-spacing:.04em;text-transform:uppercase}
+.fb-text{font-size:12px;color:var(--text);line-height:1.6}
+.fb-empty{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+
+/* ══════ LOGIN MODAL ══════ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,5,32,.8);z-index:300;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-overlay.open{display:flex}
+.login-box{background:#fff;border-radius:20px;padding:36px 30px;width:100%;max-width:370px;text-align:center;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.login-logo{font-size:44px;margin-bottom:12px}
+.login-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+.login-sub{font-size:11px;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.pw-wrap{position:relative;margin-bottom:18px}
+.pw-wrap input{width:100%;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);background:#f8fafc;border:1.5px solid var(--border);border-radius:var(--r2);padding:11px 42px 11px 14px;outline:none;transition:border-color .15s}
+.pw-wrap input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:15px;padding:0}
+.login-btn{width:100%;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:#fff;background:var(--blue);border:none;border-radius:var(--r2);padding:12px;cursor:pointer;transition:all .18s}
+.login-btn:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+.login-err{font-size:11px;color:var(--red);margin-top:10px;min-height:16px}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#94a3b8;cursor:pointer;line-height:1}
+
+/* ══════ CONFIRM MODAL ══════ */
+.confirm-box{background:#fff;border-radius:20px;padding:30px 26px;width:100%;max-width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.2)}
+.confirm-icon{font-size:38px;margin-bottom:12px}
+.confirm-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.confirm-sub{font-size:12px;color:var(--text2);margin-bottom:22px;line-height:1.5}
+.confirm-row{display:flex;gap:10px}
+.confirm-row button{flex:1;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;padding:11px;border-radius:var(--r2);border:none;cursor:pointer;transition:all .15s}
+.confirm-cancel{background:#f1f5f9;color:var(--text2)}
+.confirm-cancel:hover{background:#e2e8f0}
+.confirm-ok{background:var(--red);color:#fff}
+.confirm-ok:hover{background:#b91c1c}
+
+/* ══════ ENTRY PAGE ══════ */
+.entry-header{background:linear-gradient(135deg,#1e3a8a,#2563eb);border-radius:var(--r);padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 16px rgba(37,99,235,.2)}
+.entry-header-ico{font-size:30px;flex-shrink:0}
+.entry-header-info{flex:1;min-width:0}
+.entry-header-district{font-size:16px;font-weight:700;color:#fff}
+.entry-header-sub{font-size:10px;color:#93c5fd;margin-top:3px}
+.entry-logout{font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;color:#93c5fd;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r2);padding:7px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.entry-logout:hover{background:rgba(255,255,255,.2);color:#fff}
+
+/* District slicer */
+.dist-btn{font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:99px;border:1.5px solid #fbbf24;background:#fff;color:#92400e;cursor:pointer;transition:all .15s}
+.dist-btn:hover{background:#fef3c7}
+.dist-btn.sel{background:#f59e0b;color:#fff;border-color:#f59e0b}
+.dist-btn.sel-province{background:var(--blue)!important;color:#fff!important;border-color:var(--blue)!important}
+
+/* Period card */
+.period-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.period-card label{font-size:12px;font-weight:600;color:var(--text2)}
+.pdis{font-size:12px;background:var(--blue-lt);color:#1e40af;border-radius:99px;padding:4px 14px;font-weight:600;margin-left:auto}
+.pbar{height:3px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:14px;display:none}
+.pfill{height:100%;background:var(--blue);border-radius:99px;width:0%;transition:width .4s ease}
+
+/* Form card */
+.fcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.fcard-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.fcard-hdr h2{font-size:13px;font-weight:600;color:var(--text2)}
+.cbdg{font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:3px 10px;color:var(--text3)}
+
+/* Form table */
+.tbl-form{width:100%;border-collapse:collapse;font-size:12px;min-width:400px}
+.tbl-form thead th{padding:10px;text-align:left;font-size:10px;font-weight:600;color:var(--text2);background:#f8fafc;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl-form tbody tr{border-bottom:1px solid #f8fafc}
+.tbl-form tbody tr:last-child{border-bottom:none}
+.tbl-form tbody td{padding:8px 10px;vertical-align:middle}
+.tbl-form tfoot td{padding:10px;background:#f8fafc;font-weight:700;border-top:1px solid var(--border)}
+td.nc{font-size:10px;color:var(--text3);text-align:center;width:28px;vertical-align:top;padding-top:14px}
+.aname{font-weight:500;color:var(--text);font-size:12px;line-height:1.4}
+.aunit{font-size:10px;color:var(--text3);margin-top:2px}
+td.ic{width:95px;vertical-align:middle}
+.ni{font-family:'Sarabun',sans-serif;width:100%;padding:7px 8px;font-size:13px;font-weight:600;text-align:right;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);outline:none;transition:border-color .15s,background .15s,box-shadow .15s}
+.ni:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+.ni.hv{background:var(--blue-lt);border-color:#93c5fd;color:var(--blue2)}
+.ni.cv{background:var(--purple-lt);border-color:#c4b5fd;color:#5b21b6}
+.ni[readonly]{background:#f1f5f9;color:#94a3b8;cursor:not-allowed;border-color:#e2e8f0}
+.unit-label{font-size:9px;color:var(--text3);text-align:right;margin-top:2px;font-weight:500}
+
+/* Extra activities */
+.extra-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.extra-section h3{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px}
+.extra-item{display:grid;grid-template-columns:1fr 80px 90px 90px 32px;gap:7px;margin-bottom:8px;align-items:center}
+.extra-item input[type=text],.extra-item select{font-family:'Sarabun',sans-serif;font-size:12px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:7px 10px;outline:none;width:100%}
+.extra-item input[type=text]:focus,.extra-item select:focus{border-color:var(--blue);background:#fff}
+.extra-del{background:none;border:1px solid #fecaca;border-radius:var(--r2);color:var(--red);font-size:14px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.extra-del:hover{background:var(--red-lt)}
+.add-extra-btn{font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:var(--green);background:#f0fdf4;border:1.5px dashed #86efac;border-radius:var(--r2);padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s;width:100%;justify-content:center}
+.add-extra-btn:hover{background:#dcfce7;border-color:#4ade80}
+
+/* Feedback entry section */
+.feedback-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.feedback-section h3{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px}
+.fb-textarea{font-family:'Sarabun',sans-serif;width:100%;min-height:80px;padding:10px 12px;font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);outline:none;resize:vertical;transition:border-color .15s}
+.fb-textarea:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
+.fb-field-label{font-size:11px;font-weight:600;color:var(--text2);margin:12px 0 6px;display:flex;align-items:center;gap:6px}
+.fb-field-label:first-child{margin-top:0}
+
+/* Buttons */
+.act-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;padding:11px 20px;border-radius:var(--r2);border:none;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:7px}
+.btn-p{background:var(--blue);color:#fff}
+.btn-p:hover:not(:disabled){background:var(--blue2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(37,99,235,.25)}
+.btn-p:disabled{background:#93c5fd;cursor:not-allowed}
+.btn-danger{background:#fff;color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:var(--red-lt)}
+.spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite;display:none}
+.save-status{font-size:11px;padding:4px 12px;border-radius:99px;font-weight:600;display:none}
+.save-status.ok{display:inline-flex;background:var(--green-lt);color:#065f46}
+.save-status.er{display:inline-flex;background:var(--red-lt);color:#991b1b}
+.errbanner{display:none;background:var(--red-lt);border:1px solid #fecaca;border-radius:var(--r2);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#991b1b}
+.ft{text-align:center;font-size:10px;color:var(--text3);padding:22px 0;border-top:1px solid var(--border);margin-top:18px}
+
+/* ══════ RESPONSIVE ══════ */
+@media(max-width:960px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-row{grid-template-columns:1fr!important}
+}
+@media(max-width:600px){
+  :root{--hdr-top-h:0px}
+  .hdr-top{padding:10px 12px;gap:10px;flex-wrap:wrap;position:relative}
+  .hdr-logo,.hdr-logo-ph{width:56px;height:56px;font-size:28px}
+  .hdr-title h1{font-size:13px;line-height:1.3}
+  .hdr-title .sub{font-size:9px}
+  .hdr-photos{gap:6px;margin-top:8px;justify-content:center}
+  .hdr-photo{width:60px;height:78px;border-radius:8px}
+  .hdr-bot{flex-direction:column;align-items:stretch;padding:0;top:0;position:sticky}
+  .tabs{border-bottom:1px solid #1e3a6e;padding:0 10px}
+  .tab{font-size:12px;padding:9px 12px;gap:4px}
+  .ctrl-row{padding:6px 10px;overflow-x:auto;scrollbar-width:none;border-bottom:3px solid var(--blue)}
+  .ctrl-row::-webkit-scrollbar{display:none}
+  .fp{margin:0;flex-shrink:0}
+  .fp-lbl{font-size:9px;padding:0 6px;height:30px}
+  .fp select{font-size:11px;padding:0 5px;height:30px}
+  .wrap,.wrap-sm{padding:10px}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  .kpi{padding:12px;border-bottom-width:3px}
+  .kpi-ico{font-size:18px}
+  .kpi-badge{display:none}
+  .kpi-lbl{font-size:10px}
+  .kpi-val{font-size:22px}
+  .kpi-sfx{font-size:9px}
+  .card{padding:14px;margin-bottom:10px}
+  .sec{font-size:10px}
+  .entry-header{padding:12px 14px;gap:10px}
+  .entry-header-ico{font-size:24px}
+  .entry-header-district{font-size:14px}
+  td.ic{width:70px}
+  .ni{font-size:12px;padding:5px 6px}
+  .extra-item{grid-template-columns:1fr 60px 66px 66px 28px;gap:5px}
+  .btn{font-size:12px;padding:10px 14px}
+  .btn-p{width:100%;justify-content:center}
+  .act-row{flex-direction:column;align-items:stretch;gap:8px}
+  .dist-btn{font-size:10px;padding:5px 10px}
+  .inner-tabs{overflow-x:auto;flex-wrap:nowrap}
+  .inner-tab{white-space:nowrap;flex-shrink:0}
+}
+@media(max-width:380px){
+  .hdr-title h1{font-size:11px}
+  .hdr-logo,.hdr-logo-ph{width:44px;height:44px;font-size:22px}
+  .kpi-val{font-size:19px}
+  .tab{font-size:11px;padding:8px 10px}
+}
+</style>
+</head>
+<body>
+
+<div id="lov"><div class="spc"></div><p style="font-size:12px;color:#64748b;">กำลังโหลดข้อมูล...</p></div>
+<div class="toast" id="toast"><span id="tico"></span><span id="tmsg"></span></div>
+
+<!-- ═══ LOGIN MODAL ═══ -->
+<div class="modal-overlay" id="login-modal">
+  <div class="login-box">
+    <button class="modal-close" onclick="closeLoginModal()">✕</button>
+    <div class="login-logo">🔐</div>
+    <div class="login-title">เข้าสู่ระบบกรอกข้อมูล</div>
+    <div class="login-sub">โครงการส่งเสริมการกีฬาเพื่อพัฒนาชาติไทย<br>จังหวัดหนองบัวลำภู</div>
+    <div class="pw-wrap">
+      <input type="password" id="login-pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button class="pw-eye" onclick="togglePw()">👁</button>
+    </div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">ยืนยันการล้างข้อมูล</div>
+    <div class="confirm-sub">ข้อมูลที่กรอกไว้ทั้งหมดจะถูกลบออก<br>ไม่สามารถกู้คืนได้</div>
+    <div class="confirm-row">
+      <button class="confirm-cancel" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="confirm-ok" onclick="doReset()">ล้างข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN APP ═══════════════ -->
+<div id="main-app">
+
+<!-- HEADER ROW 1 -->
+<div class="hdr-top">
+  <div class="hdr-left">
+    <img src="https://lh3.googleusercontent.com/d/1lcAdQKyFnYrFuMqPnp3TaYJYoJOFM9Kf"
+         class="hdr-logo" alt="โลโก้"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="hdr-logo-ph" style="display:none">🏆</div>
+  </div>
+  <div class="hdr-center">
+    <div class="hdr-title">
+      <h1>รายงานผลการปฏิบัติของคณะกรรมการกีฬาประจำจังหวัด</h1>
+      <div class="sub">ตามโครงการส่งเสริมการกีฬาเพื่อพัฒนาชาติไทย ในพระบรมราชูปถัมภ์ &nbsp;•&nbsp; จังหวัดหนองบัวลำภู &nbsp;•&nbsp; <span id="period-label"></span></div>
+    </div>
+    <div class="hdr-photos">
+      <img src="https://lh3.googleusercontent.com/d/1zDkhHd8VJGcjgPI1YU0WgXMkTNzN4CyI" class="hdr-photo" alt="กีฬา1" onerror="this.style.background='#c7d2fe'"/>
+      <img src="https://lh3.googleusercontent.com/d/1iEVO5veWNkeg0g2Lc-OUm5_lWWcLL0El" class="hdr-photo" alt="กีฬา2" onerror="this.style.background='#bbf7d0'"/>
+      <img src="https://lh3.googleusercontent.com/d/1fkgjVunv9NSM8Z5T8WWnsTo3wc0FHS67" class="hdr-photo" alt="กีฬา3" onerror="this.style.background='#fde68a'"/>
+      <img src="https://lh3.googleusercontent.com/d/1gsZkFV2hUu1OACcEVfsJOyWF0X-D3tR5" class="hdr-photo" alt="กีฬา4" onerror="this.style.background='#fecaca'"/>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER ROW 2 -->
+<div class="hdr-bot">
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('dash')" id="tab-dash">📊 ภาพรวม</button>
+    <button class="tab" onclick="switchTab('entry')" id="tab-entry">📝 กรอกข้อมูล <span id="lock-icon" style="font-size:11px;opacity:.6">🔒</span></button>
+  </div>
+  <div class="ctrl-row">
+    <!-- View mode -->
+    <div class="vmode-wrap">
+      <button class="vmode-btn on" id="btn-monthly" onclick="setViewMode('monthly')">รายเดือน</button>
+      <button class="vmode-btn" id="btn-yearly" onclick="setViewMode('yearly')">ทั้งปีงบประมาณ</button>
+    </div>
+    <!-- District filter -->
+    <div class="fp dist-fp">
+      <div class="fp-lbl" style="background:#7c3aed">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        ขอบเขต
+      </div>
+      <select id="sel-district" onchange="onDistrictChange()">
+        <option value="province:">ทั้งจังหวัด (รวมหน่วยงาน)</option>
+        <option value="district:">ทุกอำเภอ</option>
+        <option value="district:เมืองหนองบัวลำภู">อ.เมืองหนองบัวลำภู</option>
+        <option value="district:นากลาง">อ.นากลาง</option>
+        <option value="district:ศรีบุญเรือง">อ.ศรีบุญเรือง</option>
+        <option value="district:สุวรรณคูหา">อ.สุวรรณคูหา</option>
+        <option value="district:โนนสัง">อ.โนนสัง</option>
+        <option value="district:นาวัง">อ.นาวัง</option>
+      </select>
+    </div>
+    <!-- Fiscal picker -->
+    <div class="fp">
+      <div class="fp-lbl">
+        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+        ปีงบประมาณ
+      </div>
+      <select id="sel-month" onchange="onPeriodChange()">
+        <option value="9">ตุลาคม</option><option value="10">พฤศจิกายน</option>
+        <option value="11">ธันวาคม</option><option value="0">มกราคม</option>
+        <option value="1">กุมภาพันธ์</option><option value="2">มีนาคม</option>
+        <option value="3">เมษายน</option><option value="4">พฤษภาคม</option>
+        <option value="5">มิถุนายน</option><option value="6">กรกฎาคม</option>
+        <option value="7">สิงหาคม</option><option value="8">กันยายน</option>
+      </select>
+      <div class="fp-div"></div>
+      <select id="sel-year" onchange="onPeriodChange()">
+        <option>2566</option><option>2567</option><option>2568</option><option selected>2569</option><option>2570</option>
+      </select>
+    </div>
+    <button class="export-btn" onclick="exportCSV()" title="ส่งออก CSV">⬇️ Export</button>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="pg on" id="pg-dash">
+<div class="wrap">
+  <div class="errbanner" id="errbanner"></div>
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi kpi-blue">
+      <div class="kpi-top"><span class="kpi-ico">📋</span><span class="kpi-badge kpi-blue">รายการ</span></div>
+      <div class="kpi-lbl">กิจกรรมทั้งหมด</div>
+      <div class="kpi-val" id="kpi-total">-</div>
+      <div class="kpi-sfx">กิจกรรม</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div class="kpi-top"><span class="kpi-ico">⚡</span><span class="kpi-badge kpi-green" id="kpi-active-badge">เดือนนี้</span></div>
+      <div class="kpi-lbl" id="kpi-active-lbl">ดำเนินการเดือนนี้</div>
+      <div class="kpi-val" id="kpi-active">-</div>
+      <div class="kpi-sfx">รายการ</div>
+    </div>
+    <div class="kpi kpi-indigo">
+      <div class="kpi-top"><span class="kpi-ico">📊</span><span class="kpi-badge kpi-indigo" id="kpi-monthly-badge">ประจำเดือน</span></div>
+      <div class="kpi-lbl" id="kpi-monthly-lbl">ผลงานประจำเดือน</div>
+      <div class="kpi-val" id="kpi-monthly">-</div>
+      <div class="kpi-sfx">ครั้ง/คน</div>
+    </div>
+    <div class="kpi kpi-amber">
+      <div class="kpi-top"><span class="kpi-ico">🏆</span><span class="kpi-badge kpi-amber">สะสม</span></div>
+      <div class="kpi-lbl">ผลงานสะสมรวม</div>
+      <div class="kpi-val" id="kpi-cumul">-</div>
+      <div class="kpi-sfx">ครั้ง/คน</div>
+    </div>
+  </div>
+
+  <!-- Inner tabs -->
+  <div class="inner-tabs">
+    <button class="inner-tab on" onclick="switchInner('overview')" id="itab-overview">📊 ภาพรวมกิจกรรม</button>
+    <button class="inner-tab" onclick="switchInner('compare')" id="itab-compare">🏘️ เปรียบเทียบรายอำเภอ</button>
+    <button class="inner-tab" onclick="switchInner('feedback')" id="itab-feedback">💬 ปัญหา/ข้อเสนอแนะ</button>
+  </div>
+
+  <!-- Overview panel -->
+  <div id="panel-overview">
+    <div class="charts-row" style="grid-template-columns:1fr 300px">
+      <div class="card card-accent" style="border-left-color:#2563eb">
+        <div class="sec">ผลการดำเนินงานประจำเดือนตามแผนงาน/กิจกรรม</div>
+        <div id="bar-list"></div>
+      </div>
+      <div class="card card-accent" style="border-left-color:#7c3aed">
+        <div class="sec">Top 5 กิจกรรมสะสม</div>
+        <div class="donut-wrap">
+          <div style="position:relative;width:160px;height:160px">
+            <canvas id="chartDonut"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+              <div style="font-size:10px;color:#64748b">สะสมรวม</div>
+              <div id="donut-total" style="font-size:15px;font-weight:800;color:#0f172a"></div>
+            </div>
+          </div>
+          <div id="donut-legend" style="width:100%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div class="sec" style="margin-bottom:0">รายละเอียดกิจกรรม <span id="row-count" style="font-weight:400;color:#94a3b8"></span></div>
+        <button class="export-btn" onclick="exportCSV()" style="font-size:10px">⬇️ ดาวน์โหลด CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th onclick="srt('id')">#</th>
+            <th onclick="srt('name')">กิจกรรม</th>
+            <th onclick="srt('unit')">หน่วย</th>
+            <th onclick="srt('monthly')" class="nr">เดือนนี้</th>
+            <th onclick="srt('cumulative')" class="nr">สะสม</th>
+            <th>สถานะ</th>
+          </tr></thead>
+          <tbody id="tbl-body"></tbody>
+          <tfoot><tr>
+            <td colspan="3">รวมทั้งหมด</td>
+            <td class="nr" id="ft-m"></td>
+            <td class="nr" id="ft-c"></td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare panel -->
+  <div id="panel-compare" style="display:none">
+    <div class="card">
+      <div class="sec">เปรียบเทียบผลงานรายอำเภอ — <span id="compare-period-lbl" style="font-weight:400;text-transform:none"></span></div>
+      <div id="compare-loading" style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">กำลังโหลดข้อมูลเปรียบเทียบ...</div>
+      <div class="compare-wrap" style="display:none" id="compare-content">
+        <canvas id="chartCompare" style="min-height:280px"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec">ตารางเปรียบเทียบรายอำเภอ</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>อำเภอ</th>
+            <th class="nr">ผลงานเดือนนี้</th>
+            <th class="nr">ผลงานสะสม</th>
+            <th class="nr">กิจกรรมที่ดำเนินการ</th>
+          </tr></thead>
+          <tbody id="compare-tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback panel -->
+  <div id="panel-feedback" style="display:none">
+    <div class="fb-card">
+      <div class="sec" style="color:#92400e">💬 ปัญหา/อุปสรรค และข้อเสนอแนะจากหน่วยงาน</div>
+      <div id="feedback-list">
+        <div class="fb-empty">ยังไม่มีข้อมูลปัญหา/ข้อเสนอแนะ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ft">โครงการส่งเสริมกีฬาเพื่อพัฒนาชาติไทย ในพระบรมราชูปถัมภ์ • จังหวัดหนองบัวลำภู</div>
+</div>
+</div>
+
+<!-- ═══ DATA ENTRY ═══ -->
+<div class="pg" id="pg-entry">
+<div class="wrap-sm">
+
+  <div class="entry-header">
+    <div class="entry-header-ico">🏛️</div>
+    <div class="entry-header-info">
+      <div class="entry-header-district" id="entry-district-name">หน่วยงาน...</div>
+      <div class="entry-header-sub">กรอกข้อมูลผลการปฏิบัติงานประจำเดือน</div>
+    </div>
+    <button class="entry-logout" onclick="doLogout()">🔓 ออกจากระบบ</button>
+  </div>
+
+  <!-- Admin slicer -->
+  <div id="admin-slicer-wrap" style="display:none;background:#fff3cd;border:1.5px solid #fbbf24;border-radius:var(--r);padding:16px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px">⚙️ Admin — เลือกหน่วยงานที่ต้องการกรอกข้อมูล</div>
+    <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:6px;letter-spacing:.04em">🏛 จังหวัด / อำเภอ</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+      <button class="dist-btn" data-d="จังหวัดหนองบัวลำภู" onclick="selectDistrict(this)" style="border-color:#2563eb;color:#1e40af;font-weight:700">🏛 จังหวัดหนองบัวลำภู</button>
+      <button class="dist-btn" data-d="เมืองหนองบัวลำภู" onclick="selectDistrict(this)">เมืองหนองบัวลำภู</button>
+      <button class="dist-btn" data-d="นากลาง" onclick="selectDistrict(this)">นากลาง</button>
+      <button class="dist-btn" data-d="ศรีบุญเรือง" onclick="selectDistrict(this)">ศรีบุญเรือง</button>
+      <button class="dist-btn" data-d="สุวรรณคูหา" onclick="selectDistrict(this)">สุวรรณคูหา</button>
+      <button class="dist-btn" data-d="โนนสัง" onclick="selectDistrict(this)">โนนสัง</button>
+      <button class="dist-btn" data-d="นาวัง" onclick="selectDistrict(this)">นาวัง</button>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#92400e;margin-bottom:6px;letter-spacing:.04em">🏢 หน่วยงาน</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      <button class="dist-btn" data-d="สพป. หนองบัวลำภู เขต 1" onclick="selectDistrict(this)">สพป. เขต 1</button>
+      <button class="dist-btn" data-d="สพป. หนองบัวลำภู เขต 2" onclick="selectDistrict(this)">สพป. เขต 2</button>
+      <button class="dist-btn" data-d="สพม. เลย-หนองบัวลำภู" onclick="selectDistrict(this)">สพม. เลย-นภ.</button>
+      <button class="dist-btn" data-d="องค์การบริหารส่วนจังหวัดหนองบัวลำภู" onclick="selectDistrict(this)">อบจ. นภ.</button>
+      <button class="dist-btn" data-d="เทศบาลเมืองหนองบัวลำภู" onclick="selectDistrict(this)">ทม. นภ.</button>
+      <button class="dist-btn" data-d="ท่องเที่ยวและกีฬาจังหวัดหนองบัวลำภู" onclick="selectDistrict(this)">ท่องเที่ยวและกีฬา</button>
+    </div>
+    <div id="admin-selected-district" style="font-size:12px;color:#92400e;margin-top:10px;min-height:16px;font-weight:600"></div>
+  </div>
+
+  <!-- Period selector for entry -->
+  <div class="period-card">
+    <label>📅 เลือกรอบรายงาน</label>
+    <div class="fp" style="border-color:#059669">
+      <div class="fp-lbl" style="background:#059669">
+        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+        ปีงบประมาณ
+      </div>
+      <select id="e-sel-month" onchange="syncFromEntry()" style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:#065f46;background:#fff;border:none;outline:none;cursor:pointer;padding:0 8px;height:34px">
+        <option value="9">ตุลาคม</option><option value="10">พฤศจิกายน</option>
+        <option value="11">ธันวาคม</option><option value="0">มกราคม</option>
+        <option value="1">กุมภาพันธ์</option><option value="2">มีนาคม</option>
+        <option value="3">เมษายน</option><option value="4">พฤษภาคม</option>
+        <option value="5">มิถุนายน</option><option value="6">กรกฎาคม</option>
+        <option value="7">สิงหาคม</option><option value="8">กันยายน</option>
+      </select>
+      <div class="fp-div" style="background:#a7f3d0"></div>
+      <select id="e-sel-year" onchange="syncFromEntry()" style="font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:#065f46;background:#fff;border:none;outline:none;cursor:pointer;padding:0 8px;height:34px">
+        <option>2566</option><option>2567</option><option>2568</option><option selected>2569</option><option>2570</option>
+      </select>
+    </div>
+    <div class="pdis" id="entry-pdis"></div>
+  </div>
+
+  <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
+
+  <!-- Activity form -->
+  <div class="fcard">
+    <div class="fcard-hdr">
+      <h2>กิจกรรมตามแผนงาน (1–14)</h2>
+      <span class="cbdg" id="filled-count">กรอกแล้ว 0 / 14 รายการ</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl-form">
+        <thead><tr>
+          <th style="width:28px">#</th>
+          <th>กิจกรรม / หน่วยนับ</th>
+          <th style="text-align:right;color:#1d4ed8">เดือนนี้</th>
+          <th style="text-align:right;color:#5b21b6">สะสม</th>
+          <th style="text-align:right;color:#059669">ภาพรวม</th>
+        </tr></thead>
+        <tbody id="form-body"></tbody>
+        <tfoot><tr>
+          <td colspan="2" style="font-size:11px;font-weight:600;color:#64748b">รวม (1–14)</td>
+          <td style="font-size:13px;font-weight:700;text-align:right;color:#1d4ed8" id="ef-m">0</td>
+          <td style="font-size:13px;font-weight:700;text-align:right;color:#5b21b6" id="ef-c">0</td>
+          <td style="font-size:13px;font-weight:700;text-align:right;color:#059669" id="ef-ov">0</td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Extra activities -->
+  <div class="extra-section">
+    <h3>15. กิจกรรมอื่นๆ <span style="font-weight:400;color:#94a3b8;font-size:11px">(ระบุชื่อกิจกรรม หน่วย พร้อมผลงาน)</span></h3>
+    <div style="display:grid;grid-template-columns:1fr 80px 90px 90px 32px;gap:8px;margin-bottom:6px;padding:0 2px">
+      <div style="font-size:10px;font-weight:600;color:#94a3b8">ชื่อกิจกรรม</div>
+      <div style="font-size:10px;font-weight:600;color:#94a3b8">หน่วย</div>
+      <div style="font-size:10px;font-weight:600;color:#1d4ed8;text-align:right">เดือนนี้</div>
+      <div style="font-size:10px;font-weight:600;color:#5b21b6;text-align:right">สะสม</div>
+      <div></div>
+    </div>
+    <div id="extra-list"></div>
+    <button class="add-extra-btn" onclick="addExtra()">
+      <span style="font-size:16px">＋</span> เพิ่มกิจกรรมอื่นๆ
+    </button>
+  </div>
+
+  <!-- Feedback entry -->
+  <div class="feedback-section">
+    <h3>💬 ปัญหา/อุปสรรค และข้อเสนอแนะ</h3>
+    <div class="fb-field-label">⚠️ ปัญหาและอุปสรรค</div>
+    <textarea class="fb-textarea" id="fb-problems" placeholder="ระบุปัญหาและอุปสรรคในการดำเนินงานเดือนนี้..."></textarea>
+    <div class="fb-field-label">💡 ข้อเสนอแนะ</div>
+    <textarea class="fb-textarea" id="fb-suggestions" placeholder="ระบุข้อเสนอแนะสำหรับการปรับปรุง..."></textarea>
+  </div>
+
+  <!-- Action buttons -->
+  <div class="act-row">
+    <button class="btn btn-p" id="btn-sub" onclick="submitData()">
+      <div class="spin" id="spin"></div>
+      <span id="btn-lbl">📤 บันทึกลง Google Sheets</span>
+    </button>
+    <button class="btn btn-danger" onclick="confirmReset()">🗑️ ล้างข้อมูล</button>
+    <span class="save-status" id="save-status"></span>
+  </div>
+</div>
+</div>
+
+</div><!-- /main-app -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbxRYrTwmrQFvVosUiS5rO7CNEzBdU-RWLgtBvmFIyj-oKbMvjbAktcLHtrbQ3XJ6jUhyQ/exec';
+
+const MONTH_NAMES = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                     'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const FISCAL_MONTHS = [9,10,11,0,1,2,3,4,5,6,7,8];
+
+// Default activities (used if API unavailable)
+const DEFAULT_ACT = [
+  {id:1,name:'ส่งเสริมการเล่นกีฬาและออกกำลังกายในชุมชน',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:2,name:'พัฒนาบุคลากรด้านกีฬา (ผู้ฝึกสอน/ผู้ตัดสิน)',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:3,name:'จัดการแข่งขันกีฬาระดับอำเภอ/จังหวัด',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:4,name:'ส่งนักกีฬาเข้าร่วมแข่งขันระดับภาค/ชาติ',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:5,name:'จัดกิจกรรมกีฬาเพื่อสุขภาพ (วิ่ง/ปั่น/เดิน)',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:6,name:'ส่งเสริมกีฬาในสถานศึกษา',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:7,name:'ส่งเสริมกีฬาผู้สูงอายุ/ผู้พิการ',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:8,name:'พัฒนาสนามกีฬา/ลานกีฬา',unit:'แห่ง',units:['แห่ง']},
+  {id:9,name:'จัดหาวัสดุอุปกรณ์กีฬา',unit:'ครั้ง',units:['ครั้ง']},
+  {id:10,name:'ส่งเสริมกีฬาพื้นบ้าน/กีฬาไทย',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:11,name:'จัดกิจกรรมนันทนาการ',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:12,name:'ป้องกันและแก้ไขปัญหายาเสพติดโดยใช้กิจกรรมกีฬา',unit:'ครั้ง/คน',units:['ครั้ง','คน']},
+  {id:13,name:'ประชาสัมพันธ์ด้านการกีฬา',unit:'ครั้ง',units:['ครั้ง']},
+  {id:14,name:'ประสานงานด้านการกีฬา',unit:'ครั้ง',units:['ครั้ง']},
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let activities = DEFAULT_ACT;
+let session = null; // { org, role, token }
+let viewMode = 'monthly';
+let currentData = [];
+let currentExtra = [];
+let currentFeedback = [];
+let prevCumulative = {};
+let sortCol = '', sortDir = 'asc';
+let donutChart = null, compareChart = null;
+let extraCount = 0;
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  updatePeriodLabel();
+  buildFormTable();
+  loadDashboard();
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// API HELPER
+// ═══════════════════════════════════════════════════════════════════
+function apiGet(params) {
+  return new Promise(function(resolve, reject) {
+    const qs = Object.entries(params).map(function(kv) { return kv[0]+'='+encodeURIComponent(kv[1]); }).join('&');
+    const cb = '_cb' + Date.now() + Math.random().toString(36).slice(2,6);
+    const url = API_URL + '?' + qs + '&callback=' + cb;
+    const s = document.createElement('script');
+    window[cb] = function(data) {
+      delete window[cb];
+      document.head.removeChild(s);
+      resolve(data);
+    };
+    s.onerror = function() {
+      delete window[cb];
+      document.head.removeChild(s);
+      reject(new Error('Network error'));
+    };
+    s.src = url;
+    document.head.appendChild(s);
+  });
+}
+
+function apiPost(payload) {
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(r) { return r.json(); });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PERIOD / VIEW HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function getFY() { return Number(document.getElementById('sel-year').value); }
+function getMonth() { return Number(document.getElementById('sel-month').value); }
+function isFirstMonth() { return getMonth() === 9; }
+
+function updatePeriodLabel() {
+  const m = getMonth(), fy = getFY();
+  const yAD = (m >= 9) ? fy - 543 - 1 : fy - 543;
+  const label = MONTH_NAMES[m] + ' ' + (yAD + 543) + ' (ปีงบ ' + fy + ')';
+  document.getElementById('period-label').textContent = label;
+  const pdis = document.getElementById('entry-pdis');
+  if (pdis) pdis.textContent = label;
+}
+
+function onPeriodChange() {
+  // sync entry selectors
+  document.getElementById('e-sel-month').value = document.getElementById('sel-month').value;
+  document.getElementById('e-sel-year').value = document.getElementById('sel-year').value;
+  updatePeriodLabel();
+  buildFormTable();
+  loadDashboard();
+}
+
+function syncFromEntry() {
+  document.getElementById('sel-month').value = document.getElementById('e-sel-month').value;
+  document.getElementById('sel-year').value = document.getElementById('e-sel-year').value;
+  updatePeriodLabel();
+  buildFormTable();
+  loadDashboard();
+}
+
+function onDistrictChange() { loadDashboard(); }
+
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('btn-monthly').classList.toggle('on', mode === 'monthly');
+  document.getElementById('btn-yearly').classList.toggle('on', mode === 'yearly');
+  loadDashboard();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('on'); });
+  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('on'); });
+
+  if (tab === 'dash') {
+    document.getElementById('tab-dash').classList.add('on');
+    document.getElementById('pg-dash').classList.add('on');
+  } else if (tab === 'entry') {
+    if (!session) {
+      openLoginModal();
+      return;
+    }
+    document.getElementById('tab-entry').classList.add('on');
+    document.getElementById('pg-entry').classList.add('on');
+    loadEntryData();
+  }
+}
+
+function switchInner(panel) {
+  document.querySelectorAll('.inner-tab').forEach(function(t) { t.classList.remove('on'); });
+  document.getElementById('itab-' + panel).classList.add('on');
+  document.getElementById('panel-overview').style.display = panel === 'overview' ? '' : 'none';
+  document.getElementById('panel-compare').style.display = panel === 'compare' ? '' : 'none';
+  document.getElementById('panel-feedback').style.display = panel === 'feedback' ? '' : 'none';
+  if (panel === 'compare') loadCompare();
+  if (panel === 'feedback') loadFeedback();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════════════════════
+function openLoginModal() { document.getElementById('login-modal').classList.add('open'); }
+function closeLoginModal() { document.getElementById('login-modal').classList.remove('open'); document.getElementById('login-err').textContent = ''; }
+function togglePw() { const i = document.getElementById('login-pw'); i.type = i.type === 'password' ? 'text' : 'password'; }
+
+function doLogin() {
+  const pw = document.getElementById('login-pw').value.trim();
+  if (!pw) { document.getElementById('login-err').textContent = 'กรุณากรอกรหัสผ่าน'; return; }
+
+  showLoading(true);
+  apiGet({ action: 'login', pw: pw }).then(function(res) {
+    showLoading(false);
+    if (res.ok) {
+      session = { org: res.org, role: res.role, token: res.token };
+      document.getElementById('lock-icon').textContent = '🔓';
+      document.getElementById('lock-icon').style.opacity = '1';
+      closeLoginModal();
+
+      // Setup entry page
+      if (session.role === 'admin') {
+        document.getElementById('admin-slicer-wrap').style.display = 'block';
+        document.getElementById('entry-district-name').textContent = 'Admin — เลือกหน่วยงาน';
+      } else {
+        document.getElementById('admin-slicer-wrap').style.display = 'none';
+        document.getElementById('entry-district-name').textContent = session.org;
+      }
+
+      switchTab('entry');
+      toast('เข้าสู่ระบบสำเร็จ — ' + session.org, 'ok');
+    } else {
+      document.getElementById('login-err').textContent = res.error || 'รหัสผ่านผิด';
+    }
+  }).catch(function() {
+    showLoading(false);
+    document.getElementById('login-err').textContent = 'เชื่อมต่อไม่ได้ ลองใหม่';
+  });
+}
+
+function doLogout() {
+  session = null;
+  document.getElementById('lock-icon').textContent = '🔒';
+  document.getElementById('lock-icon').style.opacity = '.6';
+  switchTab('dash');
+  toast('ออกจากระบบแล้ว', 'ok');
+}
+
+function getEntryOrg() {
+  if (!session) return '';
+  if (session.role === 'admin') {
+    const sel = document.querySelector('.dist-btn.sel, .dist-btn.sel-province');
+    return sel ? sel.dataset.d : '';
+  }
+  return session.org;
+}
+
+function selectDistrict(btn) {
+  document.querySelectorAll('.dist-btn').forEach(function(b) { b.classList.remove('sel', 'sel-province'); });
+  const d = btn.dataset.d;
+  if (d === 'จังหวัดหนองบัวลำภู') {
+    btn.classList.add('sel-province');
+  } else {
+    btn.classList.add('sel');
+  }
+  document.getElementById('entry-district-name').textContent = d;
+  document.getElementById('admin-selected-district').textContent = '✅ เลือก: ' + d;
+  loadEntryData();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// BUILD FORM TABLE (Entry page)
+// ═══════════════════════════════════════════════════════════════════
+function buildFormTable() {
+  const tbody = document.getElementById('form-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const firstMonth = isFirstMonth();
+
+  activities.forEach(function(act) {
+    act.units.forEach(function(u, ui) {
+      const tr = document.createElement('tr');
+      const isFirst = ui === 0;
+      const rowSpan = isFirst ? act.units.length : 0;
+
+      let html = '';
+      // # column
+      if (isFirst) {
+        html += '<td class="nc"' + (rowSpan > 1 ? ' rowspan="'+rowSpan+'"' : '') + '>' + act.id + '</td>';
+        html += '<td' + (rowSpan > 1 ? ' rowspan="'+rowSpan+'"' : '') + '><div class="aname">' + act.name + '</div><div class="aunit">' + act.unit + '</div></td>';
+      }
+
+      // Monthly input
+      html += '<td class="ic"><input type="number" class="ni hv" data-act="'+act.id+'" data-unit="'+u+'" data-field="monthly" min="0" placeholder="0" oninput="onFormInput(this)"/><div class="unit-label">' + u + '</div></td>';
+
+      // Cumulative input
+      if (firstMonth) {
+        html += '<td class="ic"><input type="number" class="ni cv" data-act="'+act.id+'" data-unit="'+u+'" data-field="cumulative" min="0" placeholder="0" oninput="onFormInput(this)"/><div class="unit-label">' + u + ' (สะสม)</div></td>';
+      } else {
+        html += '<td class="ic"><input type="number" class="ni" data-act="'+act.id+'" data-unit="'+u+'" data-field="cumulative" readonly tabindex="-1" value="0"/><div class="unit-label">' + u + ' (อัตโนมัติ)</div></td>';
+      }
+
+      // Overview (read-only total)
+      html += '<td class="ic"><input type="number" class="ni" data-act="'+act.id+'" data-unit="'+u+'" data-field="overview" readonly tabindex="-1" value="0" style="background:#f0fdf4;border-color:#bbf7d0;color:#059669"/><div class="unit-label">' + u + '</div></td>';
+
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+  });
+
+  updateFormTotals();
+}
+
+function onFormInput(el) {
+  const firstMonth = isFirstMonth();
+  if (!firstMonth) {
+    // auto-calc cumulative
+    const act = el.dataset.act;
+    const unit = el.dataset.unit;
+    const mInput = document.querySelector('input[data-act="'+act+'"][data-unit="'+unit+'"][data-field="monthly"]');
+    const cInput = document.querySelector('input[data-act="'+act+'"][data-unit="'+unit+'"][data-field="cumulative"]');
+    const oInput = document.querySelector('input[data-act="'+act+'"][data-unit="'+unit+'"][data-field="overview"]');
+
+    const prevKey = act + '_' + unit;
+    const prev = prevCumulative[prevKey] || 0;
+    const monthly = Number(mInput.value) || 0;
+    const newCumul = prev + monthly;
+
+    cInput.value = newCumul;
+    if (oInput) oInput.value = newCumul;
+  } else {
+    // first month: overview = cumulative
+    const act = el.dataset.act;
+    const unit = el.dataset.unit;
+    const cInput = document.querySelector('input[data-act="'+act+'"][data-unit="'+unit+'"][data-field="cumulative"]');
+    const oInput = document.querySelector('input[data-act="'+act+'"][data-unit="'+unit+'"][data-field="overview"]');
+    if (oInput && cInput) oInput.value = cInput.value;
+  }
+  updateFormTotals();
+}
+
+function updateFormTotals() {
+  let tm = 0, tc = 0, tov = 0;
+  document.querySelectorAll('#form-body input[data-field="monthly"]').forEach(function(i) { tm += Number(i.value) || 0; });
+  document.querySelectorAll('#form-body input[data-field="cumulative"]').forEach(function(i) { tc += Number(i.value) || 0; });
+  document.querySelectorAll('#form-body input[data-field="overview"]').forEach(function(i) { tov += Number(i.value) || 0; });
+  document.getElementById('ef-m').textContent = tm.toLocaleString();
+  document.getElementById('ef-c').textContent = tc.toLocaleString();
+  document.getElementById('ef-ov').textContent = tov.toLocaleString();
+
+  // filled count
+  let filled = 0;
+  const seen = {};
+  document.querySelectorAll('#form-body input[data-field="monthly"]').forEach(function(i) {
+    if (Number(i.value) > 0) {
+      const k = i.dataset.act;
+      if (!seen[k]) { seen[k] = true; filled++; }
+    }
+  });
+  document.getElementById('filled-count').textContent = 'กรอกแล้ว ' + filled + ' / 14 รายการ';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXTRA ACTIVITIES
+// ═══════════════════════════════════════════════════════════════════
+function addExtra(data) {
+  extraCount++;
+  const id = 'ex-' + extraCount;
+  const div = document.createElement('div');
+  div.className = 'extra-item';
+  div.id = id;
+  div.innerHTML =
+    '<input type="text" placeholder="ชื่อกิจกรรม" data-field="name" value="' + (data ? data.name : '') + '"/>' +
+    '<select data-field="unit" style="font-family:\'Sarabun\',sans-serif;font-size:12px;font-weight:600;color:#64748b;background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:0 6px;height:34px;outline:none;cursor:pointer">' +
+      '<option value="ครั้ง"' + (data && data.unit === 'ครั้ง' ? ' selected' : '') + '>ครั้ง</option>' +
+      '<option value="คน"' + (data && data.unit === 'คน' ? ' selected' : '') + '>คน</option>' +
+      '<option value="ครั้ง/คน"' + (data && data.unit === 'ครั้ง/คน' ? ' selected' : '') + '>ครั้ง/คน</option>' +
+      '<option value="แห่ง"' + (data && data.unit === 'แห่ง' ? ' selected' : '') + '>แห่ง</option>' +
+      '<option value="รายการ"' + (data && data.unit === 'รายการ' ? ' selected' : '') + '>รายการ</option>' +
+    '</select>' +
+    '<input type="number" class="ni hv" data-field="monthly" min="0" placeholder="0" value="' + (data ? data.monthly : '') + '"/>' +
+    '<input type="number" class="ni cv" data-field="cumulative" min="0" placeholder="0" value="' + (data ? data.cumulative : '') + '"/>' +
+    '<button class="extra-del" onclick="delExtra(\'' + id + '\')">✕</button>';
+  document.getElementById('extra-list').appendChild(div);
+}
+
+function delExtra(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+// ═══════════════════════════════════════════════════════════════════
+// LOAD ENTRY DATA (fill form with existing data)
+// ═══════════════════════════════════════════════════════════════════
+function loadEntryData() {
+  const org = getEntryOrg();
+  if (!org) return;
+
+  showLoading(true);
+  apiGet({ action: 'getData', fy: getFY(), month: getMonth(), org: org }).then(function(res) {
+    showLoading(false);
+    if (!res.ok) return;
+
+    prevCumulative = res.prevCumulative || {};
+
+    // Fill main form
+    (res.data || []).forEach(function(d) {
+      const mInput = document.querySelector('input[data-act="'+d.actId+'"][data-unit="'+d.unitLabel+'"][data-field="monthly"]');
+      const cInput = document.querySelector('input[data-act="'+d.actId+'"][data-unit="'+d.unitLabel+'"][data-field="cumulative"]');
+      const oInput = document.querySelector('input[data-act="'+d.actId+'"][data-unit="'+d.unitLabel+'"][data-field="overview"]');
+      if (mInput) mInput.value = d.value || '';
+      if (cInput) cInput.value = d.cumulative || '';
+      if (oInput) oInput.value = d.cumulative || '';
+    });
+
+    // If not first month, set prev cumulative for empty fields
+    if (!res.isFirstMonth) {
+      Object.keys(prevCumulative).forEach(function(key) {
+        const parts = key.split('_');
+        const actId = parts[0], unitLabel = parts.slice(1).join('_');
+        const cInput = document.querySelector('input[data-act="'+actId+'"][data-unit="'+unitLabel+'"][data-field="cumulative"]');
+        const mInput = document.querySelector('input[data-act="'+actId+'"][data-unit="'+unitLabel+'"][data-field="monthly"]');
+        if (cInput && !Number(cInput.value)) {
+          const prev = prevCumulative[key] || 0;
+          const monthly = Number(mInput ? mInput.value : 0) || 0;
+          cInput.value = prev + monthly;
+        }
+        const oInput = document.querySelector('input[data-act="'+actId+'"][data-unit="'+unitLabel+'"][data-field="overview"]');
+        if (oInput) oInput.value = cInput ? cInput.value : 0;
+      });
+    }
+
+    // Fill extras
+    document.getElementById('extra-list').innerHTML = '';
+    extraCount = 0;
+    (res.extra || []).forEach(function(ex) { addExtra(ex); });
+
+    // Fill feedback
+    const fb = (res.feedback || [])[0];
+    document.getElementById('fb-problems').value = fb ? fb.problems : '';
+    document.getElementById('fb-suggestions').value = fb ? fb.suggestions : '';
+
+    updateFormTotals();
+  }).catch(function() { showLoading(false); });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════════════════════════════════
+function submitData() {
+  const org = getEntryOrg();
+  if (!org) { toast('กรุณาเลือกหน่วยงาน', 'er'); return; }
+
+  // Collect entries
+  const entries = [];
+  const monthlyInputs = document.querySelectorAll('#form-body input[data-field="monthly"]');
+  monthlyInputs.forEach(function(mi) {
+    const actId = mi.dataset.act;
+    const unitLabel = mi.dataset.unit;
+    const monthly = Number(mi.value) || 0;
+    const ci = document.querySelector('input[data-act="'+actId+'"][data-unit="'+unitLabel+'"][data-field="cumulative"]');
+    const cumul = Number(ci ? ci.value : 0) || 0;
+    if (monthly > 0 || cumul > 0) {
+      entries.push({ actId: actId, unitLabel: unitLabel, value: monthly, cumulative: cumul });
+    }
+  });
+
+  // Collect extras
+  const extras = [];
+  document.querySelectorAll('#extra-list .extra-item').forEach(function(item) {
+    const name = item.querySelector('[data-field="name"]').value.trim();
+    const unit = item.querySelector('[data-field="unit"]').value;
+    const monthly = Number(item.querySelector('[data-field="monthly"]').value) || 0;
+    const cumul = Number(item.querySelector('[data-field="cumulative"]').value) || 0;
+    if (name) extras.push({ name: name, unit: unit, monthly: monthly, cumulative: cumul });
+  });
+
+  const payload = {
+    action: 'submit',
+    fy: getFY(),
+    month: getMonth(),
+    org: org,
+    entries: entries,
+    extras: extras,
+    problems: document.getElementById('fb-problems').value.trim(),
+    suggestions: document.getElementById('fb-suggestions').value.trim()
+  };
+
+  // Show spinner
+  const btn = document.getElementById('btn-sub');
+  const spin = document.getElementById('spin');
+  const lbl = document.getElementById('btn-lbl');
+  btn.disabled = true;
+  spin.style.display = 'block';
+  lbl.textContent = 'กำลังบันทึก...';
+
+  // Use JSONP for submit (CORS workaround)
+  apiGet({ action: 'submit', payload: JSON.stringify(payload) }).then(function(res) {
+    btn.disabled = false;
+    spin.style.display = 'none';
+    lbl.textContent = '📤 บันทึกลง Google Sheets';
+
+    if (res.ok) {
+      toast('บันทึกสำเร็จ ✓', 'ok');
+      const ss = document.getElementById('save-status');
+      ss.textContent = '✓ บันทึกแล้ว ' + new Date().toLocaleTimeString('th-TH');
+      ss.className = 'save-status ok';
+    } else {
+      toast('เกิดข้อผิดพลาด: ' + (res.error || ''), 'er');
+      const ss = document.getElementById('save-status');
+      ss.textContent = '✗ ผิดพลาด';
+      ss.className = 'save-status er';
+    }
+  }).catch(function(err) {
+    btn.disabled = false;
+    spin.style.display = 'none';
+    lbl.textContent = '📤 บันทึกลง Google Sheets';
+    toast('เชื่อมต่อไม่ได้', 'er');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════════════════════
+function confirmReset() { document.getElementById('confirm-modal').classList.add('open'); }
+function closeConfirm() { document.getElementById('confirm-modal').classList.remove('open'); }
+function doReset() {
+  closeConfirm();
+  // Clear form
+  document.querySelectorAll('#form-body input').forEach(function(i) { if (!i.readOnly) i.value = ''; });
+  document.getElementById('extra-list').innerHTML = '';
+  extraCount = 0;
+  document.getElementById('fb-problems').value = '';
+  document.getElementById('fb-suggestions').value = '';
+  updateFormTotals();
+
+  // Also delete from server
+  const org = getEntryOrg();
+  if (org) {
+    apiGet({ action: 'reset', fy: getFY(), month: getMonth(), org: org }).then(function() {
+      toast('ล้างข้อมูลสำเร็จ', 'ok');
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DASHBOARD — LOAD DATA
+// ═══════════════════════════════════════════════════════════════════
+function loadDashboard() {
+  const distSel = document.getElementById('sel-district').value;
+  const parts = distSel.split(':');
+  const scope = parts[0];
+  const org = parts[1] || '';
+
+  const params = { action: 'getData', fy: getFY(), scope: scope };
+  if (viewMode === 'monthly') params.month = getMonth();
+  if (org) params.org = org;
+
+  showLoading(true);
+  apiGet(params).then(function(res) {
+    showLoading(false);
+    if (!res.ok) {
+      showError(res.error || 'ไม่สามารถโหลดข้อมูลได้');
+      return;
+    }
+    hideError();
+    currentData = res.data || [];
+    currentExtra = res.extra || [];
+    currentFeedback = res.feedback || [];
+    renderDashboard();
+  }).catch(function(err) {
+    showLoading(false);
+    showError('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+    // Show empty state
+    currentData = [];
+    currentExtra = [];
+    currentFeedback = [];
+    renderDashboard();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DASHBOARD — RENDER
+// ═══════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  // Aggregate data by actId
+  const byAct = {};
+  activities.forEach(function(a) {
+    byAct[a.id] = { id: a.id, name: a.name, unit: a.unit, monthly: 0, cumulative: 0 };
+  });
+
+  currentData.forEach(function(d) {
+    if (byAct[d.actId]) {
+      byAct[d.actId].monthly += d.value;
+      byAct[d.actId].cumulative += d.cumulative;
+    }
+  });
+
+  // Also add extras
+  let extraMonthly = 0, extraCumul = 0;
+  currentExtra.forEach(function(ex) { extraMonthly += ex.monthly; extraCumul += ex.cumulative; });
+
+  const rows = Object.values(byAct);
+  const totalMonthly = rows.reduce(function(s, r) { return s + r.monthly; }, 0) + extraMonthly;
+  const totalCumul = rows.reduce(function(s, r) { return s + r.cumulative; }, 0) + extraCumul;
+  const activeCount = rows.filter(function(r) { return r.monthly > 0; }).length + (extraMonthly > 0 ? 1 : 0);
+
+  // KPI
+  document.getElementById('kpi-total').textContent = (activities.length + (currentExtra.length > 0 ? 1 : 0)).toString();
+  document.getElementById('kpi-active').textContent = activeCount.toString();
+  document.getElementById('kpi-monthly').textContent = totalMonthly.toLocaleString();
+  document.getElementById('kpi-cumul').textContent = totalCumul.toLocaleString();
+
+  // View mode labels
+  if (viewMode === 'yearly') {
+    document.getElementById('kpi-active-badge').textContent = 'ทั้งปี';
+    document.getElementById('kpi-active-lbl').textContent = 'ดำเนินการทั้งปีงบ';
+    document.getElementById('kpi-monthly-badge').textContent = 'ทั้งปี';
+    document.getElementById('kpi-monthly-lbl').textContent = 'ผลงานรวมทั้งปี';
+  } else {
+    document.getElementById('kpi-active-badge').textContent = 'เดือนนี้';
+    document.getElementById('kpi-active-lbl').textContent = 'ดำเนินการเดือนนี้';
+    document.getElementById('kpi-monthly-badge').textContent = 'ประจำเดือน';
+    document.getElementById('kpi-monthly-lbl').textContent = 'ผลงานประจำเดือน';
+  }
+
+  // Bar list
+  const maxM = Math.max.apply(null, rows.map(function(r) { return r.monthly; }).concat([1]));
+  const barHtml = rows.map(function(r) {
+    const pct = Math.round((r.monthly / maxM) * 100);
+    return '<div class="brow"><div class="bnum">' + r.id + '</div><div class="bname">' + r.name + '</div><div class="btrack"><div class="bfill" style="width:' + pct + '%"></div></div><div class="bval">' + r.monthly.toLocaleString() + '</div></div>';
+  }).join('');
+  document.getElementById('bar-list').innerHTML = barHtml;
+
+  // Table
+  renderTable(rows, extraMonthly, extraCumul, totalMonthly, totalCumul);
+
+  // Donut
+  renderDonut(rows);
+}
+
+function renderTable(rows, extraM, extraC, totalM, totalC) {
+  // Sort
+  if (sortCol) {
+    rows.sort(function(a, b) {
+      let va = a[sortCol], vb = b[sortCol];
+      if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const tbody = document.getElementById('tbl-body');
+  let html = '';
+  rows.forEach(function(r) {
+    const active = r.monthly > 0;
+    html += '<tr>'
+      + '<td class="nc">' + r.id + '</td>'
+      + '<td>' + r.name + '</td>'
+      + '<td style="font-size:10px;color:#94a3b8">' + r.unit + '</td>'
+      + '<td class="nr">' + r.monthly.toLocaleString() + '</td>'
+      + '<td class="nr">' + r.cumulative.toLocaleString() + '</td>'
+      + '<td><span class="bdg ' + (active ? 'bdg-on' : 'bdg-off') + '"><span class="bdg-d"></span>' + (active ? 'ดำเนินการ' : 'ยังไม่ดำเนินการ') + '</span></td>'
+      + '</tr>';
+  });
+  // Extra row
+  if (extraM > 0 || extraC > 0) {
+    html += '<tr><td class="nc">15</td><td>กิจกรรมอื่นๆ</td><td style="font-size:10px;color:#94a3b8">หลายหน่วย</td><td class="nr">' + extraM.toLocaleString() + '</td><td class="nr">' + extraC.toLocaleString() + '</td><td><span class="bdg bdg-on"><span class="bdg-d"></span>ดำเนินการ</span></td></tr>';
+  }
+  tbody.innerHTML = html;
+  document.getElementById('ft-m').textContent = totalM.toLocaleString();
+  document.getElementById('ft-c').textContent = totalC.toLocaleString();
+  document.getElementById('row-count').textContent = '(' + rows.length + ' รายการ)';
+}
+
+function srt(col) {
+  if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+  else { sortCol = col; sortDir = 'asc'; }
+  // Update header styles
+  document.querySelectorAll('thead th').forEach(function(th) { th.classList.remove('sa', 'sd'); });
+  renderDashboard();
+}
+
+function renderDonut(rows) {
+  const sorted = rows.slice().sort(function(a, b) { return b.cumulative - a.cumulative; });
+  const top5 = sorted.slice(0, 5);
+  const colors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444'];
+
+  const total = top5.reduce(function(s, r) { return s + r.cumulative; }, 0);
+  document.getElementById('donut-total').textContent = total.toLocaleString();
+
+  // Legend
+  const legend = top5.map(function(r, i) {
+    const pct = total > 0 ? Math.round((r.cumulative / total) * 100) : 0;
+    return '<div class="dl-item"><div class="dl-dot" style="background:' + colors[i] + '"></div><div class="dl-name">' + r.name.substring(0, 25) + '</div><div class="dl-pct">' + pct + '%</div></div>';
+  }).join('');
+  document.getElementById('donut-legend').innerHTML = legend;
+
+  // Chart
+  const ctx = document.getElementById('chartDonut').getContext('2d');
+  if (donutChart) donutChart.destroy();
+  donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: top5.map(function(r) { return r.name.substring(0, 20); }),
+      datasets: [{ data: top5.map(function(r) { return r.cumulative; }), backgroundColor: colors, borderWidth: 0 }]
+    },
+    options: { cutout: '68%', plugins: { legend: { display: false }, tooltip: { bodyFont: { family: 'Sarabun' } } }, responsive: true, maintainAspectRatio: true }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════════════════════════
+function loadCompare() {
+  const m = getMonth();
+  document.getElementById('compare-period-lbl').textContent = MONTH_NAMES[m] + ' ' + getFY();
+  document.getElementById('compare-loading').style.display = '';
+  document.getElementById('compare-content').style.display = 'none';
+
+  apiGet({ action: 'getCompare', fy: getFY(), month: m }).then(function(res) {
+    document.getElementById('compare-loading').style.display = 'none';
+    document.getElementById('compare-content').style.display = '';
+    if (!res.ok) return;
+    renderCompare(res.compare);
+  }).catch(function() {
+    document.getElementById('compare-loading').textContent = 'ไม่สามารถโหลดได้';
+  });
+}
+
+function renderCompare(data) {
+  const districts = Object.keys(data);
+  const monthlyVals = districts.map(function(d) { return data[d].monthly; });
+  const cumulVals = districts.map(function(d) { return data[d].cumulative; });
+
+  // Table
+  const tbody = document.getElementById('compare-tbl-body');
+  tbody.innerHTML = districts.map(function(d) {
+    return '<tr><td>' + d + '</td><td class="nr">' + data[d].monthly.toLocaleString() + '</td><td class="nr">' + data[d].cumulative.toLocaleString() + '</td><td class="nr">' + data[d].activeCount + '</td></tr>';
+  }).join('');
+
+  // Chart
+  const ctx = document.getElementById('chartCompare').getContext('2d');
+  if (compareChart) compareChart.destroy();
+  compareChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: districts.map(function(d) { return 'อ.' + d.replace('เมืองหนองบัวลำภู','เมือง'); }),
+      datasets: [
+        { label: 'เดือนนี้', data: monthlyVals, backgroundColor: '#3b82f6', borderRadius: 4 },
+        { label: 'สะสม', data: cumulVals, backgroundColor: '#8b5cf6', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { font: { family: 'Sarabun', size: 11 } } } },
+      scales: {
+        x: { ticks: { font: { family: 'Sarabun', size: 10 } } },
+        y: { beginAtZero: true, ticks: { font: { family: 'Sarabun', size: 10 } } }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FEEDBACK PANEL
+// ═══════════════════════════════════════════════════════════════════
+function loadFeedback() {
+  const m = getMonth();
+  apiGet({ action: 'getFeedback', fy: getFY(), month: m }).then(function(res) {
+    if (!res.ok) return;
+    renderFeedbackPanel(res.feedback || []);
+  }).catch(function() {
+    document.getElementById('feedback-list').innerHTML = '<div class="fb-empty">ไม่สามารถโหลดข้อมูลได้</div>';
+  });
+}
+
+function renderFeedbackPanel(list) {
+  const container = document.getElementById('feedback-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="fb-empty">ยังไม่มีข้อมูลปัญหา/ข้อเสนอแนะสำหรับเดือนนี้</div>';
+    return;
+  }
+  let html = '';
+  list.forEach(function(fb) {
+    html += '<div class="fb-item">';
+    html += '<div class="fb-org">🏛 ' + fb.org + ' <span class="fb-month">(' + fb.monthName + ')</span></div>';
+    if (fb.problems) {
+      html += '<div class="fb-label">⚠️ ปัญหาและอุปสรรค</div>';
+      html += '<div class="fb-text">' + fb.problems.replace(/\n/g, '<br>') + '</div>';
+    }
+    if (fb.suggestions) {
+      html += '<div class="fb-label">💡 ข้อเสนอแนะ</div>';
+      html += '<div class="fb-text">' + fb.suggestions.replace(/\n/g, '<br>') + '</div>';
+    }
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════════════
+function exportCSV() {
+  let csv = '\uFEFF'; // BOM for Thai
+  csv += '#,กิจกรรม,หน่วย,เดือนนี้,สะสม\n';
+  activities.forEach(function(act) {
+    const d = currentData.filter(function(r) { return r.actId === act.id; });
+    const m = d.reduce(function(s, r) { return s + r.value; }, 0);
+    const c = d.reduce(function(s, r) { return s + r.cumulative; }, 0);
+    csv += act.id + ',"' + act.name + '",' + act.unit + ',' + m + ',' + c + '\n';
+  });
+  // Extras
+  currentExtra.forEach(function(ex, i) {
+    csv += (15 + i) + ',"' + ex.name + '",' + ex.unit + ',' + ex.monthly + ',' + ex.cumulative + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sport_report_' + getFY() + '_' + getMonth() + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════
+function showLoading(show) { document.getElementById('lov').style.display = show ? 'flex' : 'none'; }
+function showError(msg) { const b = document.getElementById('errbanner'); b.textContent = msg; b.style.display = 'block'; }
+function hideError() { document.getElementById('errbanner').style.display = 'none'; }
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  const ico = document.getElementById('tico');
+  const tm = document.getElementById('tmsg');
+  ico.textContent = type === 'ok' ? '✓' : '✗';
+  tm.textContent = msg;
+  t.className = 'toast ' + type + ' on';
+  setTimeout(function() { t.classList.remove('on'); }, 3500);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Number formatting animation
+// ═══════════════════════════════════════════════════════════════════
+function animateNumber(el, target) {
+  const dur = 600;
+  const start = Number(el.textContent.replace(/,/g, '')) || 0;
+  if (start === target) return;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min((now - startTime) / dur, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const current = Math.round(start + (target - start) * eased);
+    el.textContent = current.toLocaleString();
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+</script>
+</body>
+</html>
